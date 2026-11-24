@@ -36,15 +36,18 @@ const orbitRoutes = [
   { nodes: [6, 4, 3, 1], duration: 5200, offset: 3400 },
 ] as const;
 
+type Signal = { cycle: number; speed: number };
+
 export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const elapsed = useRef(0);
+  const signals = useRef<Signal[]>([]);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (!canvas || !context) return;
+    const surface = canvas?.parentElement?.parentElement;
+    if (!canvas || !context || !surface) return;
 
     const inOrbit = placement === "orbit";
     const meshNodes = inOrbit ? orbitNodes : nodes;
@@ -55,10 +58,18 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
     let height = 0;
     let frame = 0;
     let lastDraw = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let pointerInside = false;
+    let influence = 0;
+    let inView = true;
 
-    function draw() {
+    function draw(delta = 0) {
       if (!context || width === 0 || height === 0) return;
       context.clearRect(0, 0, width, height);
+      const reach = inOrbit ? 110 : 340;
 
       for (const mirrored of [false, true]) {
         const points = meshNodes.map(([x, y]) => {
@@ -87,21 +98,37 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
         context.fill();
 
         if (reducedMotion.matches) continue;
-        for (const route of meshRoutes) {
-          const cycle = ((elapsed.current + route.offset + (mirrored ? 3400 : 0)) % route.duration)
-            / route.duration;
+        for (const [index, route] of meshRoutes.entries()) {
+          const signalIndex = index + (mirrored ? meshRoutes.length : 0);
+          const signal = signals.current[signalIndex] ??= {
+            cycle: ((route.offset + (mirrored ? 3400 : 0)) % route.duration) / route.duration,
+            speed: 1,
+          };
+          const { cycle } = signal;
           const progress = cycle * (route.nodes.length - 1);
           const hop = Math.floor(progress);
           const fraction = progress - hop;
           const from = points[route.nodes[hop]];
           const to = points[route.nodes[hop + 1]];
-          const x = from.x + (to.x - from.x) * fraction;
-          const y = from.y + (to.y - from.y) * fraction;
-          const trail = Math.max(0, fraction - 0.22);
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const x = from.x + dx * fraction;
+          const y = from.y + dy * fraction;
+          const trail = Math.min(1, Math.max(0, fraction - 0.22 * Math.sign(signal.speed)));
+
+          const cursorX = pointerX - x;
+          const cursorY = pointerY - y;
+          const proximity = Math.max(0, 1 - Math.hypot(cursorX, cursorY) / reach) * influence;
+          const alongLink = (cursorX * dx + cursorY * dy) / Math.hypot(dx, dy);
+          const towardCursor = Math.max(-1, Math.min(1, alongLink / 30));
+          const targetSpeed = 1 + proximity * (towardCursor * 1.4 - 1);
+          signal.speed += (targetSpeed - signal.speed) * Math.min(1, delta / 125);
+          const nextCycle = cycle + delta * signal.speed / route.duration;
+          signal.cycle = nextCycle - Math.floor(nextCycle);
 
           context.globalAlpha = Math.min(1, cycle * 18, (1 - cycle) * 18);
           context.beginPath();
-          context.moveTo(from.x + (to.x - from.x) * trail, from.y + (to.y - from.y) * trail);
+          context.moveTo(from.x + dx * trail, from.y + dy * trail);
           context.lineTo(x, y);
           context.strokeStyle = "rgba(69, 131, 185, 0.55)";
           context.lineWidth = 2;
@@ -121,10 +148,13 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
     }
 
     function tick(timestamp: number) {
-      if (timestamp - lastDraw >= 1000 / 30) {
-        elapsed.current += timestamp - lastDraw;
+      const delta = timestamp - lastDraw;
+      if (delta >= 1000 / 30) {
         lastDraw = timestamp;
-        draw();
+        pointerX += (targetX - pointerX) * 0.45;
+        pointerY += (targetY - pointerY) * 0.45;
+        influence += ((pointerInside ? 1 : 0) - influence) * 0.22;
+        if (inView) draw(delta);
       }
       frame = window.requestAnimationFrame(tick);
     }
@@ -138,6 +168,22 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
       frame = window.requestAnimationFrame(tick);
     }
 
+    function trackPointer(event: PointerEvent) {
+      if (event.pointerType === "touch" || paused || reducedMotion.matches || width === 0 || height === 0 || !canvas) return;
+      const bounds = canvas.getBoundingClientRect();
+      targetX = event.clientX - bounds.left;
+      targetY = event.clientY - bounds.top;
+      if (!pointerInside) {
+        pointerX = targetX;
+        pointerY = targetY;
+      }
+      pointerInside = true;
+    }
+
+    function releasePointer() {
+      pointerInside = false;
+    }
+
     const observer = new ResizeObserver(([entry]) => {
       width = entry.contentRect.width;
       height = entry.contentRect.height;
@@ -147,13 +193,22 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
       context.setTransform(scale, 0, 0, scale, 0, 0);
       syncAnimation();
     });
+    const visibility = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+    });
     observer.observe(canvas);
+    visibility.observe(canvas);
+    surface.addEventListener("pointermove", trackPointer, { passive: true });
+    surface.addEventListener("pointerleave", releasePointer);
     reducedMotion.addEventListener("change", syncAnimation);
     document.addEventListener("visibilitychange", syncAnimation);
 
     return () => {
       window.cancelAnimationFrame(frame);
       observer.disconnect();
+      visibility.disconnect();
+      surface.removeEventListener("pointermove", trackPointer);
+      surface.removeEventListener("pointerleave", releasePointer);
       reducedMotion.removeEventListener("change", syncAnimation);
       document.removeEventListener("visibilitychange", syncAnimation);
     };

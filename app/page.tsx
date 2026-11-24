@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { buttonVariants } from "@/components/ui/button";
 import { HeroMesh } from "@/components/hero-mesh";
 import { RelayDemo } from "@/components/relay-demo";
+import { SectionParticles } from "@/components/section-particles";
 import { distanceBetween, HOP_RANGE, stations } from "@/lib/relay";
 import { cn } from "@/lib/utils";
 
@@ -177,6 +178,7 @@ export default function Home() {
           </div>
         </section>
         <section id="features" className="content-section features-section" aria-labelledby="features-title" style={{ "--h": 1 } as React.CSSProperties}>
+          <SectionParticles />
           <div className="wrap">
             <div className="section-head">
               <h2 id="features-title">Tools for the relief post</h2>
@@ -186,6 +188,7 @@ export default function Home() {
           </div>
         </section>
         <section id="how-it-works" className="content-section mesh-section" aria-labelledby="mesh-title" style={{ "--h": 1 } as React.CSSProperties}>
+          <SectionParticles />
           <div className="wrap">
             <div className="section-head">
               <h2 id="mesh-title">Meepo’s relay network</h2>
@@ -197,6 +200,7 @@ export default function Home() {
         </section>
       </main>
       <footer id="faq" className="site-footer closing footer-statement" aria-labelledby="faq-title">
+        <SectionParticles />
         <div className="wrap footer-wrap">
           <div className="faq-grid grid">
             <div className="faq-intro">

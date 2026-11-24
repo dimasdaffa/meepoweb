@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 import "./meepo.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         }} />
       </head>
       <body>
+        <SmoothScroll />
         {children}
         <Script src="/assets/motion/motion.js" type="module" />
         <Script src="/assets/moments/moments.js" type="module" />

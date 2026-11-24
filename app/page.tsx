@@ -1,11 +1,12 @@
 import Image from "next/image";
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, Check, Crosshair, LockKeyhole,
-  MapPin, MessageCircle, QrCode, Radio, ShieldCheck, TriangleAlert,
+  ArrowDown, ArrowRight, ArrowUpRight, Check, LockKeyhole,
+  MapPin, QrCode, Radio, ShieldCheck, TriangleAlert,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { buttonVariants } from "@/components/ui/button";
 import { HeroMesh } from "@/components/hero-mesh";
+import { OrbitPreview } from "@/components/orbit-preview";
 import { RelayDemo } from "@/components/relay-demo";
 import { SectionParticles } from "@/components/section-particles";
 import { HOP_RANGE, MAX_HOPS } from "@/lib/relay";
@@ -51,49 +52,6 @@ function DemoLink() {
     <a href="#how-it-works" className={cn(buttonVariants(), "site-action")}>
       {demoAction} <ArrowRight data-icon="inline-end" aria-hidden="true" />
     </a>
-  );
-}
-
-function OrbitPreview() {
-  return (
-    <div className="hero-orbit">
-      <figure className="hero-stage" data-ui data-enter-media>
-        <div className="stage-grid" aria-hidden="true" />
-        <div className="stage-rings" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-        <HeroMesh placement="orbit" />
-        <Image
-          className="hero-screenshot"
-          src="/meepo-orbit-happy-family.webp"
-          width={162}
-          height={352}
-          alt="Meepo Orbit showing the four members of the Happy Family group and their positions."
-          preload
-        />
-      </figure>
-      <ul className="orbit-callouts" aria-label="Meepo feature examples">
-        <li className="orbit-callout orbit-callout--chat">
-          <span className="orbit-callout-icon"><MessageCircle aria-hidden="true" /></span>
-          <div>
-            <strong>Offline group chat</strong>
-            <p>Mom: I’m at the entrance.</p>
-          </div>
-        </li>
-        <li className="orbit-callout orbit-callout--meeting">
-          <span className="orbit-callout-icon"><MapPin aria-hidden="true" /></span>
-          <div>
-            <strong>Meeting point</strong>
-            <p>Dad pinned the entrance.</p>
-          </div>
-        </li>
-        <li className="orbit-callout orbit-callout--sos">
-          <span className="orbit-callout-icon"><TriangleAlert aria-hidden="true" /></span>
-          <div>
-            <strong>Group SOS</strong>
-            <p>Sis is on her way to help.</p>
-          </div>
-        </li>
-      </ul>
-    </div>
   );
 }
 
@@ -157,7 +115,7 @@ export default function Home() {
           </a>
         </div>
       </header>
-      <main id="top">
+      <main id="top" tabIndex={-1}>
         <section className="hero hero--centred" aria-labelledby="hero-title" data-enter>
           <HeroMesh />
           <div className="wrap hero-wrap">

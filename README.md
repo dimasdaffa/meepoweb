@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meepo
 
-## Getting Started
+English project website for Meepo, the iPhone app for offline group communication by Fantasix. The landing page shows the Happy Family group in Orbit.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+```sh
+bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+bun run lint
+bun test
+bun run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The Next.js production build exports to `out/`. Serve that directory with a static host. The page uses system fonts and does not require a backend.
 
-## Learn More
+## Relay simulator
 
-To learn more about Next.js, take a look at the following resources:
+Toggle relay phones in the relief-site map and send the sample supply message. The simulator finds the shortest route through enabled phones, lights each hop in order, and reports whether the update reaches the relief post. The geometry is drawn to a shared scale with a 40 m maximum per link. In the iPhone app, a hop depends on a usable radio connection between two devices.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The relay coordinates and routing rules live in `lib/relay.ts`.

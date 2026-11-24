@@ -19,23 +19,19 @@ export function SectionParticles() {
     if (!layer || !section) return;
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let visible = false;
     let frame = 0;
     let pointerX = 0;
     let pointerY = 0;
 
     function paint() {
       frame = 0;
-      if (!layer || !section || motion.matches) return;
-      const bounds = section.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height)));
-      layer.style.setProperty("--particle-scroll", `${(progress - 0.5) * 104}px`);
+      if (!layer || motion.matches) return;
       layer.style.setProperty("--particle-x", `${pointerX}px`);
       layer.style.setProperty("--particle-y", `${pointerY}px`);
     }
 
     function schedule() {
-      if (visible && !frame && !motion.matches) frame = window.requestAnimationFrame(paint);
+      if (!frame && !motion.matches) frame = window.requestAnimationFrame(paint);
     }
 
     function move(event: PointerEvent) {
@@ -52,22 +48,12 @@ export function SectionParticles() {
       schedule();
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      schedule();
-    });
-    observer.observe(section);
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
     motion.addEventListener("change", resetPointer);
     section.addEventListener("pointermove", move, { passive: true });
     section.addEventListener("pointerleave", resetPointer);
 
     return () => {
       window.cancelAnimationFrame(frame);
-      observer.disconnect();
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
       motion.removeEventListener("change", resetPointer);
       section.removeEventListener("pointermove", move);
       section.removeEventListener("pointerleave", resetPointer);

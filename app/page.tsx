@@ -6,6 +6,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { buttonVariants } from "@/components/ui/button";
 import { HeroMesh } from "@/components/hero-mesh";
+import { LowerSectionMotion } from "@/components/lower-section-motion";
 import { OrbitPreview } from "@/components/orbit-preview";
 import { RelayDemo } from "@/components/relay-demo";
 import { SectionParticles } from "@/components/section-particles";
@@ -201,6 +202,7 @@ export default function Home() {
           </footer>
         </div>
       </div>
+      <LowerSectionMotion />
     </>
   );
 }

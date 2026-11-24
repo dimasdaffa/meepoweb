@@ -405,6 +405,7 @@ main > .mesh-section {
   pointer-events: none;
   background-image: radial-gradient(circle, #99bad33b 1px, transparent 1px);
   background-size: 20px 20px;
+  background-position: 0 calc(var(--relay-grid-offset, 0) * 1px);
   mask-image: linear-gradient(black, #0009);
 }
 .map-field { position: relative; width: min(100%, 620px); aspect-ratio: var(--map-aspect); justify-self: center; }

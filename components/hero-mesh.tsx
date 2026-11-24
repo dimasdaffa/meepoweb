@@ -220,9 +220,9 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
   return (
     <div className={`hero-mesh hero-mesh--${placement}`}>
       <canvas ref={canvasRef} aria-hidden="true" />
-      <button className="hero-mesh-toggle" type="button" aria-label={label} title={label} onClick={() => setPaused((current) => !current)}>
+      {/* <button className="hero-mesh-toggle" type="button" aria-label={label} title={label} onClick={() => setPaused((current) => !current)}>
         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-      </button>
+      </button> */}
     </div>
   );
 }

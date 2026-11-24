@@ -10,15 +10,18 @@ import {
 } from "@/lib/relay";
 
 function position({ x, y }: Station): CSSProperties {
-  return { left: `${x / MAP_WIDTH * 100}%`, top: `${y / MAP_HEIGHT * 100}%` };
+  return { "--map-x": `${x / MAP_WIDTH * 100}%`, "--map-y": `${y / MAP_HEIGHT * 100}%` } as CSSProperties;
 }
 
 function edgeStyle({ from, to }: Link): CSSProperties {
+  // Keep the geometry identical across the server and browser math implementations.
+  const width = distanceBetween(from, to) / MAP_WIDTH * 100;
+  const angle = Math.atan2(to.y - from.y, to.x - from.x);
   return {
     ...position(from),
-    width: `${distanceBetween(from, to) / MAP_WIDTH * 100}%`,
-    rotate: `${Math.atan2(to.y - from.y, to.x - from.x)}rad`,
-  };
+    "--edge-width": `${width.toFixed(6)}%`,
+    "--edge-angle": `${angle.toFixed(6)}rad`,
+  } as CSSProperties;
 }
 
 const hopMs = 530;
@@ -52,7 +55,7 @@ export function RelayDemo() {
             <ArrowRight aria-hidden="true" />
             <span>Receiver <strong>{recipient.name}</strong></span>
           </div>
-          <div className="map-field" style={{ aspectRatio: MAP_WIDTH / MAP_HEIGHT, "--hop-scale": `${HOP_RANGE / MAP_WIDTH * 100}%` } as CSSProperties}>
+          <div className="map-field" style={{ "--map-aspect": `${MAP_WIDTH} / ${MAP_HEIGHT}`, "--hop-scale": `${HOP_RANGE / MAP_WIDTH * 100}%` } as CSSProperties}>
             <div className="relay-range" style={position(sender)} aria-hidden="true" />
             {links.map((edge) => {
               const { from, to } = edge;

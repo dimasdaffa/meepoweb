@@ -115,88 +115,92 @@ export default function Home() {
           </a>
         </div>
       </header>
-      <main id="top" tabIndex={-1}>
-        <section className="hero hero--centred" aria-labelledby="hero-title" data-enter>
-          <HeroMesh />
-          <div className="wrap hero-wrap">
-            <div className="hero-text">
-              <div className="hero-copy">
-                <h1 id="hero-title">Meet Your People</h1>
-                <p>Meepo connects nearby iPhones so you can find your group, share updates, and ask for help without internet access.</p>
-                <div className="hero-actions">
-                  <DemoLink />
-                  <a className="text-action" href="#download">Get Meepo <ArrowDown aria-hidden="true" /></a>
+      <div id="smooth-wrapper">
+        <div id="smooth-content">
+          <main id="top" tabIndex={-1}>
+            <section className="hero hero--centred" aria-labelledby="hero-title" data-enter>
+              <HeroMesh />
+              <div className="wrap hero-wrap">
+                <div className="hero-text">
+                  <div className="hero-copy">
+                    <h1 id="hero-title">Meet Your People</h1>
+                    <p>Meepo connects nearby iPhones so you can find your group, share updates, and ask for help without internet access.</p>
+                    <div className="hero-actions">
+                      <DemoLink />
+                      <a className="text-action" href="#download">Get Meepo <ArrowDown aria-hidden="true" /></a>
+                    </div>
+                  </div>
+                  <OrbitPreview />
                 </div>
               </div>
-              <OrbitPreview />
-            </div>
-          </div>
-        </section>
-        <section id="features" className="content-section features-section" aria-labelledby="features-title" style={{ "--h": 1 } as React.CSSProperties}>
-          <SectionParticles />
-          <div className="wrap">
-            <div className="section-head">
-              <h2 id="features-title">Tools for the relief post</h2>
-              <p>Keep supply updates, meeting points, and calls for help in one local group.</p>
-            </div>
-            <FeatureVisuals />
-          </div>
-        </section>
-        <section id="how-it-works" className="content-section mesh-section" aria-labelledby="mesh-title" style={{ "--h": 1 } as React.CSSProperties}>
-          <SectionParticles />
-          <div className="wrap">
-            <div className="section-head">
-              <h2 id="mesh-title">Meepo’s relay network</h2>
-              <p>Watch a signal travel from Daffa’s iPhone on the left to Hasan’s on the right. Tap a relay to switch it on or off and see how the route changes.</p>
-            </div>
-            <RelayDemo />
-            <p className="range-note">The simulator uses {HOP_RANGE} m per hop. Actual radio range varies with the surroundings.</p>
-          </div>
-        </section>
-      </main>
-      <footer id="faq" className="site-footer closing footer-statement" aria-labelledby="faq-title">
-        <SectionParticles />
-        <div className="wrap footer-wrap">
-          <div className="faq-grid grid">
-            <div className="faq-intro">
-              <div className="section-head">
-                <h2 id="faq-title">Common questions</h2>
+            </section>
+            <section id="features" className="content-section features-section" aria-labelledby="features-title" style={{ "--h": 1 } as React.CSSProperties}>
+              <SectionParticles />
+              <div className="wrap">
+                <div className="section-head">
+                  <h2 id="features-title">Tools for the relief post</h2>
+                  <p>Keep supply updates, meeting points, and calls for help in one local group.</p>
+                </div>
+                <FeatureVisuals />
               </div>
-              <figure className="faq-range">
-                <figcaption><Radio aria-hidden="true" /> Simulator limits</figcaption>
-                <dl data-moment="counter-rolls">
-                  <div><dt>Range per hop</dt><dd data-count>{HOP_RANGE} m</dd></div>
-                  <div><dt>Max hops</dt><dd data-count>{MAX_HOPS}</dd></div>
-                </dl>
-              </figure>
+            </section>
+            <section id="how-it-works" className="content-section mesh-section" aria-labelledby="mesh-title" style={{ "--h": 1 } as React.CSSProperties}>
+              <SectionParticles />
+              <div className="wrap">
+                <div className="section-head">
+                  <h2 id="mesh-title">Meepo’s relay network</h2>
+                  <p>Watch a signal travel from Daffa’s iPhone on the left to Hasan’s on the right. Tap a relay to switch it on or off and see how the route changes.</p>
+                </div>
+                <RelayDemo />
+                <p className="range-note">The simulator uses {HOP_RANGE} m per hop. Actual radio range varies with the surroundings.</p>
+              </div>
+            </section>
+          </main>
+          <footer id="faq" className="site-footer closing footer-statement" aria-labelledby="faq-title">
+            <SectionParticles />
+            <div className="wrap footer-wrap">
+              <div className="faq-grid grid">
+                <div className="faq-intro">
+                  <div className="section-head">
+                    <h2 id="faq-title">Common questions</h2>
+                  </div>
+                  <figure className="faq-range">
+                    <figcaption><Radio aria-hidden="true" /> Simulator limits</figcaption>
+                    <dl data-moment="counter-rolls">
+                      <div><dt>Range per hop</dt><dd data-count>{HOP_RANGE} m</dd></div>
+                      <div><dt>Max hops</dt><dd data-count>{MAX_HOPS}</dd></div>
+                    </dl>
+                  </figure>
+                </div>
+                <Accordion className="faq-list" defaultValue={[questions[0].question]}>
+                  {questions.map(({ question, answer }) => (
+                    <AccordionItem key={question} value={question}>
+                      <AccordionTrigger>{question}</AccordionTrigger>
+                      <AccordionContent><p>{answer}</p></AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+              <section id="download" className="app-download" aria-labelledby="download-title">
+                <div className="app-download-copy">
+                  <h2 id="download-title">Get Meepo for iPhone</h2>
+                  <a href={appStoreUrl} className={cn(buttonVariants(), "site-action")}>
+                    Download on the App Store <ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+                  </a>
+                </div>
+                <figure className="app-download-qr">
+                  <Image src="/meepo-app-store-qr.png" width={164} height={164} alt="QR code for Meepo on the App Store" />
+                  <figcaption>Scan with your iPhone camera</figcaption>
+                </figure>
+              </section>
+              <div className="footer-bottom">
+                <Brand />
+                <DemoLink />
+              </div>
             </div>
-            <Accordion className="faq-list" defaultValue={[questions[0].question]}>
-              {questions.map(({ question, answer }) => (
-                <AccordionItem key={question} value={question}>
-                  <AccordionTrigger>{question}</AccordionTrigger>
-                  <AccordionContent><p>{answer}</p></AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-          <section id="download" className="app-download" aria-labelledby="download-title">
-            <div className="app-download-copy">
-              <h2 id="download-title">Get Meepo for iPhone</h2>
-              <a href={appStoreUrl} className={cn(buttonVariants(), "site-action")}>
-                Download on the App Store <ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-              </a>
-            </div>
-            <figure className="app-download-qr">
-              <Image src="/meepo-app-store-qr.png" width={164} height={164} alt="QR code for Meepo on the App Store" />
-              <figcaption>Scan with your iPhone camera</figcaption>
-            </figure>
-          </section>
-          <div className="footer-bottom">
-            <Brand />
-            <DemoLink />
-          </div>
+          </footer>
         </div>
-      </footer>
+      </div>
     </>
   );
 }

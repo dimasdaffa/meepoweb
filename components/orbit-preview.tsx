@@ -4,9 +4,10 @@ import { useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { HeroMesh } from "@/components/hero-mesh";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const screens = [
   { image: "/meepo-meeting-point.webp", label: "Set Meeting Point", description: "Meeting point screen with four group members on the offline map." },
@@ -18,12 +19,32 @@ const screens = [
 const center = Math.floor(screens.length / 2);
 
 export function OrbitPreview() {
+  const stage = useRef<HTMLElement>(null);
   const gallery = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState(center);
   const [hovered, setHovered] = useState<number | null>(null);
   const active = hovered ?? selected;
   const lift = hovered === null ? 4 : 16;
   const scale = hovered === null ? 1.02 : 1.065;
+
+  useGSAP(() => {
+    const media = gsap.matchMedia();
+    media.add({
+      allowMotion: "(prefers-reduced-motion: no-preference)",
+      desktop: "(min-width: 768px)",
+    }, ({ conditions }) => {
+      if (!conditions?.allowMotion || !stage.current) return;
+
+      gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: { trigger: stage.current, start: 0, end: () => Math.min(window.innerHeight * .55, 480), scrub: .4 },
+      })
+        .to(".stage-grid, .stage-rings", { y: conditions.desktop ? 64 : 20 }, 0)
+        .to(".orbit-gallery", { y: conditions.desktop ? 18 : 6 }, 0);
+    }, stage);
+
+    return () => media.revert();
+  }, { scope: stage });
 
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -37,7 +58,7 @@ export function OrbitPreview() {
   }, { scope: gallery, dependencies: [active, lift, scale] });
 
   return (
-    <figure className="hero-stage" data-ui data-enter-media>
+    <figure className="hero-stage" ref={stage} data-ui data-enter-media>
       <div className="stage-grid" aria-hidden="true" />
       <div className="stage-rings" aria-hidden="true"><i /><i /><i /><i /><i /></div>
       <HeroMesh placement="orbit" />

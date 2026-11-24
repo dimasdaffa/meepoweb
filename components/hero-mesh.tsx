@@ -69,14 +69,15 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
     function draw(delta = 0) {
       if (!context || width === 0 || height === 0) return;
       context.clearRect(0, 0, width, height);
-      const reach = inOrbit ? 110 : 340;
+      const reach = inOrbit ? 110 : Math.max(340, width * 0.19);
+      const meshHeight = Math.min(height, Math.max(900, width * 0.58));
 
       for (const mirrored of [false, true]) {
         const points = meshNodes.map(([x, y]) => {
           const inset = inOrbit ? 0.04 + x * 0.24 : x * 0.29;
           return {
             x: width * (mirrored ? 1 - inset : inset),
-            y: Math.min(height, 900) * (y + (mirrored ? 0.025 : 0)),
+            y: meshHeight * (y + (mirrored ? 0.025 : 0)),
           };
         });
 
@@ -187,7 +188,7 @@ export function HeroMesh({ placement = "hero" }: { placement?: "hero" | "orbit" 
     const observer = new ResizeObserver(([entry]) => {
       width = entry.contentRect.width;
       height = entry.contentRect.height;
-      const scale = Math.min(window.devicePixelRatio, 1.5);
+      const scale = Math.min(window.devicePixelRatio, 1.5, 4096 / Math.max(width, height));
       canvas.width = Math.round(width * scale);
       canvas.height = Math.round(height * scale);
       context.setTransform(scale, 0, 0, scale, 0, 0);

@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { buttonVariants } from "@/components/ui/button";
+import { HeroMesh } from "@/components/hero-mesh";
 import { RelayDemo } from "@/components/relay-demo";
 import { distanceBetween, HOP_RANGE, stations } from "@/lib/relay";
 import { cn } from "@/lib/utils";
@@ -57,9 +58,10 @@ function OrbitPreview() {
   return (
     <div className="hero-orbit">
       <figure className="hero-stage" data-ui data-enter-media>
+        <figcaption className="stage-caption"><Crosshair aria-hidden="true" /> Meepo Orbit</figcaption>
         <div className="stage-grid" aria-hidden="true" />
         <div className="stage-rings" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-        <figcaption className="stage-caption"><Crosshair aria-hidden="true" /> Meepo Orbit</figcaption>
+        <HeroMesh placement="orbit" />
         <Image
           className="hero-screenshot"
           src="/meepo-orbit-happy-family.webp"
@@ -158,6 +160,7 @@ export default function Home() {
       </header>
       <main id="top">
         <section className="hero hero--centred" aria-labelledby="hero-title" data-enter>
+          <HeroMesh />
           <div className="wrap hero-wrap">
             <div className="hero-text">
               <div className="hero-copy">

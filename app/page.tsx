@@ -59,7 +59,6 @@ function OrbitPreview() {
   return (
     <div className="hero-orbit">
       <figure className="hero-stage" data-ui data-enter-media>
-        <figcaption className="stage-caption"><Crosshair aria-hidden="true" /> Meepo Orbit</figcaption>
         <div className="stage-grid" aria-hidden="true" />
         <div className="stage-rings" aria-hidden="true"><i /><i /><i /><i /><i /></div>
         <HeroMesh placement="orbit" />
@@ -165,7 +164,6 @@ export default function Home() {
           <div className="wrap hero-wrap">
             <div className="hero-text">
               <div className="hero-copy">
-                <div className="hero-fact"><span className="status-dot" /> Offline mesh for iPhone</div>
                 <h1 id="hero-title">Meet Your People</h1>
                 <p>Meepo connects nearby iPhones so you can find your group, share updates, and ask for help without internet access.</p>
                 <div className="hero-actions">
@@ -238,7 +236,6 @@ export default function Home() {
           </section>
           <div className="footer-bottom">
             <Brand />
-            <p><ShieldCheck aria-hidden="true" /> An iPhone project by Fantasix</p>
             <DemoLink />
           </div>
         </div>

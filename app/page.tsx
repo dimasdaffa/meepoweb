@@ -8,12 +8,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { HeroMesh } from "@/components/hero-mesh";
 import { RelayDemo } from "@/components/relay-demo";
 import { SectionParticles } from "@/components/section-particles";
-import { distanceBetween, HOP_RANGE, stations } from "@/lib/relay";
+import { HOP_RANGE, MAX_HOPS } from "@/lib/relay";
 import { cn } from "@/lib/utils";
 
 const appStoreUrl = "https://apps.apple.com/id/app/meepo-meet-your-people/id6832473209";
 const demoAction = "Try the relay demo";
-const siteSpan = Math.round(distanceBetween(stations[0], stations[stations.length - 1]));
 
 const questions = [
   {
@@ -190,10 +189,10 @@ export default function Home() {
           <div className="wrap">
             <div className="section-head">
               <h2 id="mesh-title">Meepo’s relay network</h2>
-              <p>Nearby phones can pass an encrypted message along. Switch relays on or off, then send an update from the supply tent.</p>
+              <p>Watch a signal travel from Daffa’s iPhone on the left to Hasan’s on the right. Tap a relay to switch it on or off and see how the route changes.</p>
             </div>
             <RelayDemo />
-            <p className="range-note">The simulator uses a {HOP_RANGE} m hop limit. Actual radio range varies with the surroundings.</p>
+            <p className="range-note">The simulator uses {HOP_RANGE} m per hop. Actual radio range varies with the surroundings.</p>
           </div>
         </section>
       </main>
@@ -206,10 +205,10 @@ export default function Home() {
                 <h2 id="faq-title">Common questions</h2>
               </div>
               <figure className="faq-range">
-                <figcaption><Radio aria-hidden="true" /> Distances in the simulator</figcaption>
+                <figcaption><Radio aria-hidden="true" /> Simulator limits</figcaption>
                 <dl data-moment="counter-rolls">
-                  <div><dt>Maximum hop</dt><dd data-count>{HOP_RANGE} m</dd></div>
-                  <div><dt>Tent to post</dt><dd data-count>{siteSpan} m</dd></div>
+                  <div><dt>Range per hop</dt><dd data-count>{HOP_RANGE} m</dd></div>
+                  <div><dt>Max hops</dt><dd data-count>{MAX_HOPS}</dd></div>
                 </dl>
               </figure>
             </div>

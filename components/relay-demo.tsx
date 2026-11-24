@@ -1,140 +1,104 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
-import {
-  ArrowRight, Check, Radio, RotateCcw, Send, Smartphone, Tent, Warehouse, WifiOff,
-} from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { ArrowRight, Ban, Check, Pause, Play, Radio, RotateCcw, Smartphone, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  findRoute, getLinks, HOP_RANGE, initialRelays, MAP_HEIGHT, MAP_WIDTH, stations,
-  type Link, type RelayId, type Station, type StationId,
+  distanceBetween, findRoute, getLinks, HOP_RANGE, initialRelays,
+  MAP_HEIGHT, MAP_WIDTH, MAX_HOPS, recipient, relayCount, sender, stations,
+  type Link, type RelayId, type Station,
 } from "@/lib/relay";
-
-const hopTime = 750;
-type Run = "idle" | "sending" | "delivered" | "blocked";
 
 function position({ x, y }: Station): CSSProperties {
   return { left: `${x / MAP_WIDTH * 100}%`, top: `${y / MAP_HEIGHT * 100}%` };
 }
 
-function edgeStyle({ from, to, distance }: Link): CSSProperties {
+function edgeStyle({ from, to }: Link): CSSProperties {
   return {
     ...position(from),
-    width: `${distance / MAP_WIDTH * 100}%`,
+    width: `${distanceBetween(from, to) / MAP_WIDTH * 100}%`,
     rotate: `${Math.atan2(to.y - from.y, to.x - from.x)}rad`,
   };
 }
 
-function StationIcon({ role }: { role: Station["role"] }) {
-  const Icon = role === "sender" ? Tent : role === "recipient" ? Warehouse : Smartphone;
-  return <Icon aria-hidden="true" />;
-}
+const hopMs = 530;
 
 export function RelayDemo() {
   const [relays, setRelays] = useState<RelayId[]>(initialRelays);
-  const [run, setRun] = useState<Run>("idle");
-  const [hop, setHop] = useState(0);
+  const [paused, setPaused] = useState(false);
   const links = getLinks(relays);
   const route = findRoute(links);
   const hops = Math.max(0, route.length - 1);
-  const reached = run === "sending" || run === "delivered" ? route.slice(0, hop + 1) : [];
-  const stationNames = Object.fromEntries(stations.map((station) => [station.id, station.name]));
-
-  useEffect(() => {
-    if (run !== "sending") return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => {
-      setHop(hop + 1);
-      if (hop + 1 === hops) setRun("delivered");
-    }, reducedMotion ? 150 : hopTime);
-    return () => window.clearTimeout(timer);
-  }, [run, hop, hops]);
-
-  function clearRun() {
-    setRun("idle");
-    setHop(0);
-  }
+  const routeKey = route.map(({ id }) => id).join("/");
+  const loopMs = hops * hopMs + 950;
+  const AnimationIcon = paused ? Play : Pause;
 
   function toggleRelay(id: RelayId) {
-    clearRun();
     setRelays((previous) => previous.includes(id)
       ? previous.filter((relay) => relay !== id)
       : [...previous, id]);
   }
 
-  function sendMessage() {
-    setHop(0);
-    setRun(hops > 0 ? "sending" : "blocked");
-  }
-
-  const headline = {
-    idle: "Ready to send",
-    sending: "Message in transit",
-    delivered: "Message delivered",
-    blocked: "No route to the post",
-  }[run];
-  const detail = {
-    idle: "Select a relay on the map to change the route.",
-    sending: `${stationNames[route[hop]]} → ${stationNames[route[hop + 1]]}`,
-    delivered: `The relief post received the update in ${hops} hops.`,
-    blocked: "Turn on relays to make a route with gaps of 40 m or less.",
-  }[run];
-
-  function linkHop(from: StationId, to: StationId) {
-    return route.findIndex((id, index) =>
-      (id === from && route[index + 1] === to) || (id === to && route[index + 1] === from),
-    );
-  }
-
   return (
-    <div className="relay-console" data-ui>
+    <div className="relay-console" data-ui data-paused={paused}>
       <div className="relay-toolbar">
         <div className="relay-toolbar-label"><Radio aria-hidden="true" /> Relay simulator</div>
         <div className="relay-signal"><WifiOff aria-hidden="true" /> No cell service</div>
       </div>
       <div className="relay-layout">
-        <div className="relay-map" role="group" aria-label="Relief site map">
-          <div className="map-caption"><span /> Relief site</div>
-          <div className="map-field" style={{ "--hop-scale": `${HOP_RANGE / MAP_WIDTH * 100}%` } as CSSProperties}>
-            <div className="relay-range" style={position(stations[0])} aria-hidden="true" />
+        <div className="relay-map" role="group" aria-label="Phone network from Daffa to Hasan">
+          <div className="map-caption">
+            <span>Sender <strong>{sender.name}</strong></span>
+            <ArrowRight aria-hidden="true" />
+            <span>Receiver <strong>{recipient.name}</strong></span>
+          </div>
+          <div className="map-field" style={{ aspectRatio: MAP_WIDTH / MAP_HEIGHT, "--hop-scale": `${HOP_RANGE / MAP_WIDTH * 100}%` } as CSSProperties}>
+            <div className="relay-range" style={position(sender)} aria-hidden="true" />
             {links.map((edge) => {
-              const index = linkHop(edge.from.id, edge.to.id);
-              const active = index >= 0 && run === "sending" && index === hop;
-              const passed = index >= 0 && index < hop;
+              const { from, to } = edge;
+              const index = route.findIndex(({ id }, step) =>
+                (id === from.id && route[step + 1]?.id === to.id) ||
+                (id === to.id && route[step + 1]?.id === from.id),
+              );
+
               return (
-                <div
-                  className="relay-edge"
-                  data-route={index >= 0}
-                  data-passed={passed}
-                  key={`${edge.from.id}-${edge.to.id}`}
-                  style={edgeStyle(edge)}
-                  aria-hidden="true"
-                >
-                  {active && <i className="relay-pulse" data-reverse={route[hop] !== edge.from.id} />}
+                <div className="relay-edge" data-route={index >= 0} key={`${from.id}-${to.id}`} style={edgeStyle(edge)} aria-hidden="true">
+                  {index >= 0 && (
+                    <i
+                      key={routeKey}
+                      className="relay-pulse"
+                      data-reverse={route[index].id !== from.id}
+                      style={{
+                        "--relay-loop": `${loopMs}ms`,
+                        "--pulse-start": `${index * hopMs / loopMs * 100}%`,
+                        "--pulse-end": `${(index + 1) * hopMs / loopMs * 100}%`,
+                      } as CSSProperties}
+                    />
+                  )}
                 </div>
               );
             })}
             {stations.map((station) => {
               const { id, name, role } = station;
-              const hasMessage = reached.includes(id);
-              const enabled = role !== "relay" || relays.includes(id);
+              const onRoute = route.includes(station);
               return (
-                <div className="map-station" key={id} style={position(station)} data-role={role}>
+                <div className="map-station" key={id} style={position(station)} data-role={role} data-top-row={station.y < 25}>
                   {role === "relay" ? (
                     <button
                       type="button"
                       className="map-node"
-                      aria-label={`${name} relay`}
-                      aria-pressed={enabled}
-                      data-enabled={enabled}
-                      data-reached={hasMessage}
+                      aria-label={name === "Meepo User" ? `${name}, ${id} relay` : `${name} relay`}
+                      aria-pressed={relays.includes(id)}
+                      data-enabled={relays.includes(id)}
+                      data-on-route={onRoute}
                       onClick={() => toggleRelay(id)}
                     >
-                      <StationIcon role={role} />
+                      <Smartphone aria-hidden="true" />
                     </button>
                   ) : (
-                    <span className="map-node" data-enabled data-reached={hasMessage}>
-                      <StationIcon role={role} />
+                    <span className="map-node" data-enabled={role !== "unavailable"} data-on-route={onRoute}>
+                      <Smartphone aria-hidden="true" />
+                      {role === "unavailable" && <Ban className="map-node-ban" aria-hidden="true" />}
                     </span>
                   )}
                   <span className="map-node-label">{name}</span>
@@ -143,34 +107,34 @@ export function RelayDemo() {
             })}
             <div className="map-key">
               <span className="map-scale" aria-hidden="true"><i /></span>
-              <span>{HOP_RANGE} m hop limit</span>
+              <span>{HOP_RANGE} m per hop</span>
             </div>
           </div>
         </div>
         <div className="relay-side">
           <div className="relay-side-top">
-            <div className="relay-counter">
-              <span>Relays on</span><strong>{relays.length} / 4</strong>
-            </div>
-            <div className="relay-counter">
-              <span>Route</span><strong>{hops ? `${hops} hops` : "No path"}</strong>
-            </div>
+            <div className="relay-counter"><span>Relays on</span><strong>{relays.length} / {relayCount}</strong></div>
+            <div className="relay-counter"><span>Route</span><strong>{hops ? `${hops} hops` : "No path"}</strong></div>
+            <div className="relay-counter"><span>Max hops</span><strong>{MAX_HOPS}</strong></div>
           </div>
-          <div className="relay-message">
-            <div className="relay-message-label"><Send aria-hidden="true" /> Supply update</div>
-            <p>Water is ready at Tent A.</p>
+          <div className="relay-feedback" role="status" aria-atomic="true" data-connected={hops > 0}>
+            <strong>{hops > 0 ? <><Check aria-hidden="true" /> Route connected</> : "Route interrupted"}</strong>
+            <span>{hops > 0 ? route.map(({ name }) => name).join(" → ") : "Turn on nearby relays to reconnect Daffa and Hasan."}</span>
           </div>
-          <div className="relay-feedback" role="status" aria-atomic="true" data-state={run}>
-            <strong>{run === "delivered" && <Check aria-hidden="true" />}{headline}</strong>
-            <span>{detail}</span>
-          </div>
+          <ul className="relay-legend" aria-label="Map legend">
+            <li><i data-state="route" /> On the route</li>
+            <li><i data-state="available" /> Relay on</li>
+            <li><i /> Relay off</li>
+            <li><Ban aria-hidden="true" /> Meepo not installed</li>
+          </ul>
           <div className="relay-actions">
-            <Button className="site-action" type="button" disabled={run === "sending"} onClick={sendMessage}>
-              Send message <ArrowRight data-icon="inline-end" aria-hidden="true" />
-            </Button>
+            {/* <Button className="site-action relay-pause" type="button" disabled={hops === 0} onClick={() => setPaused((current) => !current)}>
+              <AnimationIcon data-icon="inline-start" aria-hidden="true" />
+              {paused ? "Resume animation" : "Pause animation"}
+            </Button> */}
             <Button
               className="site-action relay-reset" variant="link" type="button"
-              onClick={() => { setRelays(initialRelays); clearRun(); }}
+              onClick={() => { setRelays(initialRelays); setPaused(false); }}
             >
               <RotateCcw data-icon="inline-start" aria-hidden="true" /> Reset
             </Button>

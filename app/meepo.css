@@ -31,7 +31,7 @@
   --nav: 72px;
 }
 
-html { scroll-padding-top: var(--nav); }
+html { scroll-behavior: smooth; scroll-padding-top: var(--nav); }
 body { background: var(--p-bg); color: var(--p-ink); }
 h1, h2, h3 { hyphens: none; }
 a:focus-visible, button:focus-visible { outline: 2px solid #5686b3; outline-offset: 4px; }
@@ -502,7 +502,14 @@ footer.site-footer > .footer-wrap { display: flex; min-height: calc(100svh - cla
   .faq-grid > .faq-intro, .faq-grid > .faq-list { grid-column: 1 / -1; }
   .faq-grid { row-gap: var(--s-6); }
   .faq-intro .section-head { margin-bottom: var(--s-4); }
-  .app-download-qr { margin-inline: auto; }
+  footer.site-footer > .footer-wrap { gap: var(--s-6); }
+  .app-download, .footer-bottom {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    text-align: center;
+  }
+  .app-download-copy { justify-items: center; }
+  .app-download-copy .site-action { max-width: 100%; white-space: normal; }
 }
 
 @media (max-width: 480px) {

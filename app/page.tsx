@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { buttonVariants } from "@/components/ui/button";
 import { HeroMesh } from "@/components/hero-mesh";
 import { LowerSectionMotion } from "@/components/lower-section-motion";
+import { LoRaDiagram } from "@/components/lora-diagram";
 import { OrbitPreview } from "@/components/orbit-preview";
 import { RelayDemo } from "@/components/relay-demo";
 import { SectionParticles } from "@/components/section-particles";
@@ -154,6 +155,16 @@ export default function Home() {
                 </div>
                 <RelayDemo />
                 <p className="range-note">The simulator uses {HOP_RANGE} m per hop. Actual radio range varies with the surroundings.</p>
+              </div>
+            </section>
+            <section id="future-development" className="content-section future-section" aria-labelledby="future-title">
+              <div className="wrap">
+                <div className="future-intro">
+                  <p className="future-kicker">Future development</p>
+                  <h2 id="future-title">Offline messaging over longer distances</h2>
+                  <p>We plan to use LoRa-enabled IoT relays to pass messages between groups of iPhones beyond the reach of the local mesh.</p>
+                </div>
+                <LoRaDiagram />
               </div>
             </section>
           </main>

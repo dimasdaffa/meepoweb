@@ -57,6 +57,13 @@ export function LowerSectionMotion() {
           scrollTrigger: { trigger, start: "clamp(top bottom)", end: "clamp(bottom top)", scrub: .45 },
         });
       }
+
+      gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: { trigger: ".lora-diagram", start: "top 94%", end: "top 30%", scrub: .35 },
+      })
+        .from(".lora-link-reveal", { strokeDashoffset: 100 }, 0)
+        .from(".lora-coverage", { scale: .8, opacity: .55, transformOrigin: "center" }, 0);
     });
 
     return () => media.revert();

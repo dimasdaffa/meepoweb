@@ -188,6 +188,7 @@ export default function Home() {
                   <a href={appStoreUrl} className={cn(buttonVariants(), "site-action")}>
                     Download on the App Store <ArrowUpRight data-icon="inline-end" aria-hidden="true" />
                   </a>
+                  <a className="text-action" href="mailto:hi.meepo@gmail.com">Contact us</a>
                 </div>
                 <figure className="app-download-qr">
                   <Image src="/meepo-app-store-qr.png" width={164} height={164} alt="QR code for Meepo on the App Store" />
